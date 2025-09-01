@@ -30,7 +30,6 @@ export async function GET() {
   // Aggregate points by user
   const pointsByUser = data.reduce((acc, pick) => {
     const username = pick.users.username;
-    console.log(username, "usernname");
     acc[username] = (acc[username] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
