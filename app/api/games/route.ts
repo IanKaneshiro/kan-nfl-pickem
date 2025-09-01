@@ -3,10 +3,14 @@ import { createClient } from "@supabase/supabase-js";
 import { Game, Team } from "@/types/games";
 
 // Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Supabase credentials are not configured");
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Team mapping for transforming API response
 const TEAM_MAP: { [key: string]: Team } = {
@@ -87,12 +91,21 @@ export async function GET(request: NextRequest) {
     } else {
       // If no games found in database, fetch from API
       const url = `https://tank01-nfl-live-in-game-real-time-statistics-nfl.p.rapidapi.com/getNFLGamesForWeek?week=${week}&seasonType=reg&season=2025`;
+      const rapidApiKey = process.env.RAPIDAPI_KEY?.trim();
+      const rapidApiHost = process.env.RAPIDAPI_HOST?.trim();
+
+      if (!rapidApiKey || !rapidApiHost) {
+        throw new Error("RapidAPI credentials are not configured");
+      }
+
+      // Ensure headers are properly sanitized
+      const headers = new Headers();
+      headers.set("x-rapidapi-key", rapidApiKey);
+      headers.set("x-rapidapi-host", rapidApiHost);
+
       const options = {
         method: "GET",
-        headers: {
-          "x-rapidapi-key": process.env.RAPIDAPI_KEY!,
-          "x-rapidapi-host": process.env.RAPIDAPI_HOST!,
-        },
+        headers,
       };
 
       const response = await fetch(url, options);
