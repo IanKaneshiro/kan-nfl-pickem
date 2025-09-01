@@ -38,15 +38,37 @@ export async function POST(request: Request) {
   }
 
   // Update all picks for this game
-  const { error: picksError } = await supabase
-    .from("picks")
-    .update({
-      is_correct:
-        winnerTeam === "TIE"
-          ? null // If it's a tie, set is_correct to null
-          : winnerTeam === "picked_team", // Compare with the picked team
-    })
-    .eq("game_id", gameId);
+  let picksError = null;
+  if (winnerTeam === "TIE") {
+    // If tie, set all is_correct to null
+    const { error } = await supabase
+      .from("picks")
+      .update({ is_correct: null })
+      .eq("game_id", gameId);
+    picksError = error;
+  } else {
+    // Fetch all picks for this game
+    const { data: picks, error: fetchError } = await supabase
+      .from("picks")
+      .select("id, picked_team")
+      .eq("game_id", gameId);
+    if (fetchError) {
+      picksError = fetchError;
+    } else {
+      // Update each pick with correct value
+      for (const pick of picks) {
+        const isCorrect = pick.picked_team === winnerTeam;
+        const { error: updateError } = await supabase
+          .from("picks")
+          .update({ is_correct: isCorrect })
+          .eq("id", pick.id);
+        if (updateError) {
+          picksError = updateError;
+          break;
+        }
+      }
+    }
+  }
 
   if (picksError) {
     return NextResponse.json(

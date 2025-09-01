@@ -17,6 +17,7 @@ export default function Leaderboard() {
         const response = await fetch("/api/leaderboard");
         if (!response.ok) throw new Error("Failed to fetch leaderboard");
         const data = await response.json();
+
         setLeaderboard(data);
       } catch (error) {
         console.error("Error fetching leaderboard:", error);

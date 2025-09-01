@@ -23,7 +23,6 @@ export async function GET() {
     .select("user_id, users!inner(username)")
     .eq("is_correct", true)
     .returns<Pick[]>();
-
   if (error) {
     return NextResponse.json(
       { error: "Failed to fetch leaderboard" },
@@ -37,7 +36,6 @@ export async function GET() {
     acc[username] = (acc[username] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
-
   // Convert to leaderboard format
   const leaderboard = Object.entries(pointsByUser)
     .map(([username, points]) => ({ username, points }))

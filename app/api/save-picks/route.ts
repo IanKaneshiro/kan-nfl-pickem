@@ -52,8 +52,6 @@ export async function POST(request: NextRequest) {
       .from("users")
       .insert({ id: user.id, username: user?.firstName });
 
-    console.log(insertUserError);
-
     if (insertUserError) {
       return NextResponse.json(
         { error: "Failed to create user" },
@@ -70,14 +68,12 @@ export async function POST(request: NextRequest) {
     picked_team: pick.teamId,
     is_correct: null, // Default to null until game results are known
   }));
-  console.log(picksData, "picks data");
   // Insert picks into the database
   const { error } = await supabase.from("picks").upsert(picksData, {
     onConflict: "user_id,game_id", // Changed from 'user_id,week,game_id'
   });
 
   if (error) {
-    console.log(error);
     return NextResponse.json(
       { error: "Failed to save picks" },
       { status: 500 }

@@ -74,7 +74,6 @@ export default function Picks() {
         if (isSignedIn && user) {
           try {
             const picksRes = await fetch(`/api/picks?week=${week}`);
-            console.log("Picks response status:", picksRes.status);
 
             if (!picksRes.ok) {
               const errorText = await picksRes.text();
@@ -87,7 +86,6 @@ export default function Picks() {
             }
 
             const picksData = await picksRes.json();
-            console.log("Received picks data:", picksData);
             setPicks(picksData.picks || {});
           } catch (error) {
             console.error("Error fetching picks:", error);
@@ -137,8 +135,6 @@ export default function Picks() {
       gameId,
       teamId,
     }));
-
-    console.log(week, picks, picksArray);
 
     try {
       const response = await fetch("/api/save-picks", {

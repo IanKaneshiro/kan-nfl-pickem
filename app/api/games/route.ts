@@ -115,7 +115,6 @@ export async function GET(request: NextRequest) {
 
       const result = await response.json();
       gamesData = result.body;
-      console.log(gamesData);
     }
 
     // Define the database game type
