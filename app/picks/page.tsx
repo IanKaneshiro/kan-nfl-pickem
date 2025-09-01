@@ -17,12 +17,6 @@ interface Game {
   status: string;
   home: Team;
   away: Team;
-  venue?: {
-    id: string;
-    name: string;
-    city: string;
-    state: string;
-  };
 }
 
 export default function Picks() {
@@ -39,7 +33,42 @@ export default function Picks() {
         if (!res.ok) throw new Error("Failed to fetch games");
         const data = await res.json();
         setGames(data.games || []);
-        console.log(data.games);
+        // Log the response for debugging
+        console.log("Fetched games data:", data);
+        // Validate the response data
+        if (!Array.isArray(data.games)) {
+          throw new Error("Invalid response format: games is not an array");
+        }
+
+        // Validate each game has the required properties and structure
+        const validatedGames = data.games.filter((game: any) => {
+          // Check if game has all required properties
+          const isValid =
+            game &&
+            game.id &&
+            game.scheduled &&
+            game.status &&
+            game.home &&
+            game.away &&
+            game.home.id &&
+            game.home.name &&
+            game.away.id &&
+            game.away.name;
+
+          if (!isValid) {
+            console.warn("Skipping invalid game:", game);
+          }
+
+          return isValid;
+        });
+
+        validatedGames.sort((a: Game, b: Game) => {
+          return (
+            new Date(a.scheduled).getTime() - new Date(b.scheduled).getTime()
+          );
+        });
+
+        setGames(validatedGames);
       } catch (error) {
         console.error("Error fetching games:", error);
         setGames([]);

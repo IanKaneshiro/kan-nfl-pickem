@@ -36,7 +36,6 @@ export async function GET() {
   }, {} as Record<string, number>);
 
   // Convert to leaderboard format
-  console.log(pointsByUser);
   const leaderboard = Object.entries(pointsByUser)
     .map(([username, points]) => ({ username, points }))
     .sort((a, b) => b.points - a.points);

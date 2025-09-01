@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
   console.log(picksData, "picks data");
   // Insert picks into the database
   const { error } = await supabase.from("picks").upsert(picksData, {
-    onConflict: "user_id,week,game_id", // Update if pick already exists
+    onConflict: "user_id,game_id", // Changed from 'user_id,week,game_id'
   });
 
   if (error) {
