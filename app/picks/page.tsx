@@ -23,10 +23,12 @@ export default function Picks() {
   const [games, setGames] = useState<Game[]>([]);
   const [week, setWeek] = useState<number>(1); // Default to week 1
   const [picks, setPicks] = useState<{ [key: string]: string }>({}); // Store picks as { gameId: pickedTeamId }
+  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch games and user's picks when week changes
   useEffect(() => {
     async function fetchGamesAndPicks() {
+      setIsLoading(true);
       try {
         // Fetch games
         const gamesRes = await fetch(`/api/games?week=${week}`);
@@ -94,6 +96,8 @@ export default function Picks() {
       } catch (error) {
         console.error("Error fetching data:", error);
         setGames([]);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchGamesAndPicks();
@@ -190,7 +194,32 @@ export default function Picks() {
       </div>
 
       {/* Games List */}
-      {games.length === 0 ? (
+      {isLoading ? (
+        // Skeleton Loading UI
+        <div className="w-full max-w-2xl space-y-4 sm:space-y-6">
+          {[...Array(8)].map((_, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 animate-pulse"
+            >
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
+                <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/4 mt-2 sm:mt-0"></div>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:space-x-6 space-y-3 sm:space-y-0">
+                <div className="flex items-center space-x-2">
+                  <div className="h-5 w-5 bg-gray-200 rounded-full"></div>
+                  <div className="h-5 bg-gray-200 rounded w-24"></div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="h-5 w-5 bg-gray-200 rounded-full"></div>
+                  <div className="h-5 bg-gray-200 rounded w-24"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : games.length === 0 ? (
         <p className="text-gray-600 text-center">
           No games available for this week.
         </p>
@@ -250,7 +279,7 @@ export default function Picks() {
       )}
 
       {/* Submit Button */}
-      {games.length > 0 && (
+      {!isLoading && games.length > 0 && (
         <button
           onClick={handleSubmit}
           className="mt-6 sm:mt-8 w-full sm:w-auto px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm sm:text-base"
