@@ -23,8 +23,7 @@ export default function Leaderboard() {
       }
     }
     fetchLeaderboard();
-    console.log(leaderboard);
-  }, []);
+  }, []); // Empty dependency array is fine here as we only want to fetch on mount
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-6 px-4 sm:px-6 lg:px-8">
@@ -34,7 +33,7 @@ export default function Leaderboard() {
           Leaderboard
         </h1>
         <p className="text-sm sm:text-base text-gray-600 mt-2">
-          See who’s dominating the NFL Pick'em season!
+          See whos dominating the NFL Pick em season!
         </p>
       </div>
 

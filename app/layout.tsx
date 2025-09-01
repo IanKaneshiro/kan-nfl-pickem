@@ -28,7 +28,7 @@ export default function RootLayout({
                     🏈
                   </span>
                   <span className="text-lg sm:text-xl font-semibold hidden sm:inline">
-                    NFL Pick'em
+                    NFL Pick&apos;em
                   </span>
                 </div>
               </Link>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { GameData, Game, Team } from "@/types/games";
+import { Game, Team } from "@/types/games";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -116,7 +116,15 @@ export async function GET(request: NextRequest) {
     };
 
     // First transform API data into database format
-    const dbGames = gamesData.map((game: any) => {
+    type APIGame = {
+      gameID: string;
+      gameTime_epoch: string;
+      gameStatus: string;
+      home: string;
+      away: string;
+    };
+
+    const dbGames = gamesData.map((game: APIGame) => {
       const transformed = {
         id: game.gameID,
         week: parseInt(week),

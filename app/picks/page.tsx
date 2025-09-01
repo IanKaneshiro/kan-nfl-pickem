@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import Link from "next/link";
 
 // Define the shape of a Game object for TypeScript
 interface Team {
@@ -41,7 +40,7 @@ export default function Picks() {
         }
 
         // Validate each game has the required properties and structure
-        const validatedGames = data.games.filter((game: any) => {
+        const validatedGames = data.games.filter((game: Partial<Game>) => {
           // Check if game has all required properties
           const isValid =
             game &&
