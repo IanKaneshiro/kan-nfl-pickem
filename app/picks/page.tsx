@@ -24,23 +24,22 @@ export default function Picks() {
   const [week, setWeek] = useState<number>(1); // Default to week 1
   const [picks, setPicks] = useState<{ [key: string]: string }>({}); // Store picks as { gameId: pickedTeamId }
 
-  // Fetch games when week changes
+  // Fetch games and user's picks when week changes
   useEffect(() => {
-    async function fetchGames() {
+    async function fetchGamesAndPicks() {
       try {
-        const res = await fetch(`/api/games?week=${week}`);
-        if (!res.ok) throw new Error("Failed to fetch games");
-        const data = await res.json();
-        setGames(data.games || []);
-        // Log the response for debugging
-        console.log("Fetched games data:", data);
+        // Fetch games
+        const gamesRes = await fetch(`/api/games?week=${week}`);
+        if (!gamesRes.ok) throw new Error("Failed to fetch games");
+        const gamesData = await gamesRes.json();
+
         // Validate the response data
-        if (!Array.isArray(data.games)) {
+        if (!Array.isArray(gamesData.games)) {
           throw new Error("Invalid response format: games is not an array");
         }
 
         // Validate each game has the required properties and structure
-        const validatedGames = data.games.filter((game: Partial<Game>) => {
+        const validatedGames = gamesData.games.filter((game: Partial<Game>) => {
           // Check if game has all required properties
           const isValid =
             game &&
@@ -68,13 +67,37 @@ export default function Picks() {
         });
 
         setGames(validatedGames);
+
+        // If user is signed in, fetch their picks
+        if (isSignedIn && user) {
+          try {
+            const picksRes = await fetch(`/api/picks?week=${week}`);
+            console.log("Picks response status:", picksRes.status);
+
+            if (!picksRes.ok) {
+              const errorText = await picksRes.text();
+              console.error(
+                "Failed to fetch picks:",
+                picksRes.status,
+                errorText
+              );
+              return;
+            }
+
+            const picksData = await picksRes.json();
+            console.log("Received picks data:", picksData);
+            setPicks(picksData.picks || {});
+          } catch (error) {
+            console.error("Error fetching picks:", error);
+          }
+        }
       } catch (error) {
-        console.error("Error fetching games:", error);
+        console.error("Error fetching data:", error);
         setGames([]);
       }
     }
-    fetchGames();
-  }, [week]);
+    fetchGamesAndPicks();
+  }, [week, isSignedIn, user]);
 
   // Handle team selection for a game
   const handlePick = (gameId: string, teamId: string) => {
@@ -88,10 +111,8 @@ export default function Picks() {
   const changeWeek = (direction: "prev" | "next") => {
     if (direction === "prev" && week > 1) {
       setWeek(week - 1);
-      setPicks({});
     } else if (direction === "next" && week < 18) {
       setWeek(week + 1);
-      setPicks({});
     }
   };
 
