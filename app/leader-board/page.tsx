@@ -38,9 +38,9 @@ export default function Leaderboard() {
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
           🏆 Leaderboard
         </h1>
-        <p className="text-sm sm:text-base lg:text-lg text-gray-300">
-          See who's dominating the NFL Pick'em season!
-        </p>
+                  <p className="text-sm sm:text-base text-gray-300">
+            See who&apos;s dominating the NFL Pick&apos;em season!
+          </p>
       </div>
 
       {/* Leaderboard Table */}
