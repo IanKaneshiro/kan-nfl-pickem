@@ -158,130 +158,197 @@ export default function Picks() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-6 px-4 sm:px-6 lg:px-8">
-      {/* Header Section with Home Logo */}
-      <header className="w-full max-w-2xl flex items-center justify-center mb-6 sm:mb-8">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center py-6 px-4 sm:px-6 lg:px-8">
+      {/* Header Section */}
+      <header className="w-full max-w-4xl flex items-center justify-center mb-6 sm:mb-8">
         <div className="text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
             Week {week} Picks
           </h1>
-          <p className="text-xs sm:text-sm text-gray-600 mt-1">
-            Select the team you think will win each game.
+          <p className="text-sm sm:text-base text-gray-300">
+            Select the team you think will win each game
           </p>
         </div>
       </header>
 
       {/* Navigation Section */}
-      <div className="flex flex-col justify-center sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mb-6 w-full max-w-md">
+      <div className="flex flex-col justify-center sm:flex-row space-y-3 sm:space-y-0 sm:space-x-6 mb-8 w-full max-w-md">
         <button
           onClick={() => changeWeek("prev")}
           disabled={week === 1}
-          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all text-sm sm:text-base"
+          className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all text-sm sm:text-base font-medium shadow-lg disabled:shadow-none"
         >
-          Previous Week
+          ← Previous Week
         </button>
         <button
           onClick={() => changeWeek("next")}
           disabled={week === 18}
-          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all text-sm sm:text-base"
+          className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all text-sm sm:text-base font-medium shadow-lg disabled:shadow-none"
         >
-          Next Week
+          Next Week →
         </button>
       </div>
 
       {/* Games List */}
       {isLoading ? (
-        // Skeleton Loading UI
-        <div className="w-full max-w-2xl space-y-4 sm:space-y-6">
+        // Enhanced Skeleton Loading UI
+        <div className="w-full max-w-4xl space-y-6">
           {[...Array(8)].map((_, index) => (
             <div
               key={index}
-              className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 animate-pulse"
+              className="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700 animate-pulse"
             >
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
-                <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/4 mt-2 sm:mt-0"></div>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+                <div className="h-7 bg-gray-700 rounded w-3/4"></div>
+                <div className="h-5 bg-gray-700 rounded w-1/4 mt-2 sm:mt-0"></div>
               </div>
-              <div className="flex flex-col sm:flex-row sm:space-x-6 space-y-3 sm:space-y-0">
-                <div className="flex items-center space-x-2">
-                  <div className="h-5 w-5 bg-gray-200 rounded-full"></div>
-                  <div className="h-5 bg-gray-200 rounded w-24"></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-center space-x-3 p-4 bg-gray-700 rounded-lg">
+                  <div className="h-6 w-6 bg-gray-600 rounded-full"></div>
+                  <div className="h-6 bg-gray-600 rounded w-32"></div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="h-5 w-5 bg-gray-200 rounded-full"></div>
-                  <div className="h-5 bg-gray-200 rounded w-24"></div>
+                <div className="flex items-center space-x-3 p-4 bg-gray-700 rounded-lg">
+                  <div className="h-6 w-6 bg-gray-600 rounded-full"></div>
+                  <div className="h-6 bg-gray-600 rounded w-32"></div>
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : games.length === 0 ? (
-        <p className="text-gray-600 text-center">
-          No games available for this week.
-        </p>
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🏈</div>
+          <p className="text-xl text-gray-300">
+            No games available for this week
+          </p>
+          <p className="text-gray-400 mt-2">
+            Check back later or try a different week
+          </p>
+        </div>
       ) : (
-        <div className="w-full max-w-2xl space-y-4 sm:space-y-6">
-          {games.map((game: Game) => (
-            <div
-              key={game.id}
-              className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200"
-            >
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-                  {game.away.name} @ {game.home.name}
-                </h2>
-                <span className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-0">
-                  {new Date(game.scheduled).toLocaleString()}
-                </span>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:space-x-6 space-y-3 sm:space-y-0">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name={`pick-${game.id}`}
-                    value={game.away.id}
-                    checked={picks[game.id] === game.away.id}
-                    onChange={() => handlePick(game.id, game.away.id)}
-                    className="h-5 w-5 text-blue-600 focus:ring-blue-500"
-                    disabled={new Date(game.scheduled) < new Date()}
-                  />
-                  <span className="text-gray-700 font-medium text-sm sm:text-base">
-                    {game.away.name}
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name={`pick-${game.id}`}
-                    value={game.home.id}
-                    checked={picks[game.id] === game.home.id}
-                    onChange={() => handlePick(game.id, game.home.id)}
-                    className="h-5 w-5 text-blue-600 focus:ring-blue-500"
-                    disabled={new Date(game.scheduled) < new Date()}
-                  />
-                  <span className="text-gray-700 font-medium text-sm sm:text-base">
+        <div className="w-full max-w-4xl space-y-6">
+          {games.map((game: Game) => {
+            const gameStarted = new Date(game.scheduled) < new Date();
+            return (
+              <div
+                key={game.id}
+                className={`bg-gray-800 rounded-xl shadow-lg p-6 border transition-all duration-200 hover:shadow-xl ${
+                  gameStarted
+                    ? "border-gray-600 opacity-75"
+                    : "border-gray-700 hover:border-gray-600"
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-white">
+                    {game.away.name} <span className="text-gray-400">@</span>{" "}
                     {game.home.name}
-                  </span>
-                </label>
+                  </h2>
+                  <div className="flex flex-col sm:items-end mt-2 sm:mt-0">
+                    <span className="text-sm text-gray-300">
+                      {new Date(game.scheduled).toLocaleDateString()}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {new Date(game.scheduled).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Away Team */}
+                  <label
+                    className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
+                      picks[game.id] === game.away.id
+                        ? "bg-blue-600 border-blue-500 shadow-lg"
+                        : gameStarted
+                        ? "bg-gray-700 border-gray-600 cursor-not-allowed"
+                        : "bg-gray-700 border-gray-600 hover:border-gray-500 hover:bg-gray-650"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name={`pick-${game.id}`}
+                      value={game.away.id}
+                      checked={picks[game.id] === game.away.id}
+                      onChange={() => handlePick(game.id, game.away.id)}
+                      className="h-5 w-5 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                      disabled={gameStarted}
+                    />
+                    <div className="flex-1">
+                      <span className="text-white font-semibold text-lg">
+                        {game.away.name}
+                      </span>
+                      <div className="text-xs text-gray-300 mt-1">Away</div>
+                    </div>
+                  </label>
+
+                  {/* Home Team */}
+                  <label
+                    className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
+                      picks[game.id] === game.home.id
+                        ? "bg-blue-600 border-blue-500 shadow-lg"
+                        : gameStarted
+                        ? "bg-gray-700 border-gray-600 cursor-not-allowed"
+                        : "bg-gray-700 border-gray-600 hover:border-gray-500 hover:bg-gray-650"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name={`pick-${game.id}`}
+                      value={game.home.id}
+                      checked={picks[game.id] === game.home.id}
+                      onChange={() => handlePick(game.id, game.home.id)}
+                      className="h-5 w-5 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                      disabled={gameStarted}
+                    />
+                    <div className="flex-1">
+                      <span className="text-white font-semibold text-lg">
+                        {game.home.name}
+                      </span>
+                      <div className="text-xs text-gray-300 mt-1">Home</div>
+                    </div>
+                  </label>
+                </div>
+
+                {gameStarted && (
+                  <div className="mt-4 p-3 bg-red-900/30 border border-red-800 rounded-lg">
+                    <p className="text-red-300 text-sm flex items-center">
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      This game has already started. Picks are locked.
+                    </p>
+                  </div>
+                )}
               </div>
-              {new Date(game.scheduled) < new Date() && (
-                <p className="text-red-500 text-xs sm:text-sm mt-2">
-                  This game has already started. Picks are locked.
-                </p>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
       {/* Submit Button */}
       {!isLoading && games.length > 0 && (
-        <button
-          onClick={handleSubmit}
-          className="mt-6 sm:mt-8 w-full sm:w-auto px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm sm:text-base"
-        >
-          Submit Picks
-        </button>
+        <div className="mt-8 w-full max-w-md">
+          <button
+            onClick={handleSubmit}
+            className="w-full px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 text-white text-lg font-semibold rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            🏈 Submit Picks
+          </button>
+          <p className="text-center text-gray-400 text-sm mt-3">
+            {Object.keys(picks).length} of {games.length} games selected
+          </p>
+        </div>
       )}
     </div>
   );

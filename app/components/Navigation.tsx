@@ -59,6 +59,13 @@ export default function Navigation() {
             </button>
           </Link>
 
+          {/* Trends Link */}
+          <Link href="/trends">
+            <button className="px-3 py-1 sm:px-4 sm:py-2 text-white rounded-md hover:bg-blue-700 transition-all duration-200 text-sm sm:text-base font-medium">
+              Trends
+            </button>
+          </Link>
+
           {/* Leaderboard Link */}
           <Link href="/leader-board">
             <button className="px-3 py-1 sm:px-4 sm:py-2 text-white rounded-md hover:bg-blue-700 transition-all duration-200 text-sm sm:text-base font-medium">
@@ -125,6 +132,13 @@ export default function Navigation() {
             <Link href="/picks" onClick={closeMenu}>
               <button className="w-full text-left px-4 py-3 text-white rounded-md hover:bg-blue-700 transition-all duration-200 font-medium">
                 Picks
+              </button>
+            </Link>
+
+            {/* Trends Link */}
+            <Link href="/trends" onClick={closeMenu}>
+              <button className="w-full text-left px-4 py-3 text-white rounded-md hover:bg-blue-700 transition-all duration-200 font-medium">
+                Trends
               </button>
             </Link>
 
