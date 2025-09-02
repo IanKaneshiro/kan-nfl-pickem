@@ -48,9 +48,13 @@ export async function POST(request: NextRequest) {
 
   if (!userData) {
     // Insert the user with a default username (could be updated later)
-    const { error: insertUserError } = await supabase
-      .from("users")
-      .insert({ id: user.id, username: user?.firstName });
+    const { error: insertUserError } = await supabase.from("users").insert({
+      id: user.id,
+      username:
+        user?.firstName ||
+        user?.emailAddresses[0]?.emailAddress.match(/^([^@]*)@/)?.[1] ||
+        "user",
+    });
 
     if (insertUserError) {
       return NextResponse.json(
