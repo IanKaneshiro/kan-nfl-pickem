@@ -543,7 +543,7 @@ export default function TrendsPage() {
                       {modalData.count} user{modalData.count !== 1 ? "s" : ""}{" "}
                       picked this team:
                     </p>
-                    {modalData.pickers.map((picker, index) => (
+                    {modalData.pickers.map((picker) => (
                       <div
                         key={picker.userId}
                         className="bg-gray-700 rounded-lg p-3 flex items-center"

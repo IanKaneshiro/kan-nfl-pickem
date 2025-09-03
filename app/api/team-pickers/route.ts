@@ -43,10 +43,25 @@ export async function GET(request: NextRequest) {
     }
 
     // Format the response to include usernames
-    const pickers = picks.map((pick: any) => ({
-      userId: pick.user_id,
-      username: pick.users?.username || "Unknown User",
-    }));
+    const pickers =
+      picks?.map((pick) => {
+        let username = "Unknown User";
+        if (Array.isArray(pick.users) && pick.users.length > 0) {
+          username = pick.users[0].username || "Unknown User";
+        } else if (
+          pick.users &&
+          typeof pick.users === "object" &&
+          "username" in pick.users
+        ) {
+          username =
+            (pick.users as { username: string }).username || "Unknown User";
+        }
+
+        return {
+          userId: pick.user_id,
+          username,
+        };
+      }) || [];
 
     return NextResponse.json({
       gameId,
