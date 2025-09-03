@@ -27,10 +27,89 @@ interface WeeklyTrends {
   averagePicksPerUser: number;
 }
 
+interface TeamPicker {
+  userId: string;
+  username: string;
+}
+
+interface TeamPickersResponse {
+  gameId: string;
+  pickedTeam: string;
+  pickers: TeamPicker[];
+  count: number;
+  teamName?: string;
+}
+
 export default function TrendsPage() {
   const [trends, setTrends] = useState<WeeklyTrends | null>(null);
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [modalData, setModalData] = useState<TeamPickersResponse | null>(null);
+  const [isLoadingModal, setIsLoadingModal] = useState(false);
+
+  // Team mapping for display names to IDs (reverse of the API mapping)
+  const TEAM_NAME_TO_ID: { [key: string]: string } = {
+    "Dallas Cowboys": "DAL",
+    "Philadelphia Eagles": "PHI",
+    "Kansas City Chiefs": "KC",
+    "Los Angeles Chargers": "LAC",
+    "Las Vegas Raiders": "LV",
+    "New York Giants": "NYG",
+    "Miami Dolphins": "MIA",
+    "New England Patriots": "NE",
+    "Buffalo Bills": "BUF",
+    "New York Jets": "NYJ",
+    "Arizona Cardinals": "ARI",
+    "Atlanta Falcons": "ATL",
+    "Baltimore Ravens": "BAL",
+    "Carolina Panthers": "CAR",
+    "Chicago Bears": "CHI",
+    "Cincinnati Bengals": "CIN",
+    "Cleveland Browns": "CLE",
+    "Denver Broncos": "DEN",
+    "Detroit Lions": "DET",
+    "Green Bay Packers": "GB",
+    "Houston Texans": "HOU",
+    "Indianapolis Colts": "IND",
+    "Jacksonville Jaguars": "JAX",
+    "Minnesota Vikings": "MIN",
+    "New Orleans Saints": "NO",
+    "Los Angeles Rams": "LAR",
+    "Seattle Seahawks": "SEA",
+    "San Francisco 49ers": "SF",
+    "Tampa Bay Buccaneers": "TB",
+    "Tennessee Titans": "TEN",
+    "Washington Commanders": "WSH",
+    "Pittsburgh Steelers": "PIT",
+  };
+
+  const handleTeamClick = async (gameId: string, teamName: string) => {
+    const teamId = TEAM_NAME_TO_ID[teamName];
+    if (!teamId) return;
+
+    setIsLoadingModal(true);
+    setShowModal(true);
+    setModalData(null);
+
+    try {
+      const response = await fetch(
+        `/api/team-pickers?gameId=${gameId}&pickedTeam=${teamId}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch team pickers");
+      const data = await response.json();
+      setModalData({ ...data, teamName });
+    } catch (error) {
+      console.error("Error fetching team pickers:", error);
+    } finally {
+      setIsLoadingModal(false);
+    }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setModalData(null);
+  };
 
   useEffect(() => {
     const fetchTrends = async () => {
@@ -50,6 +129,18 @@ export default function TrendsPage() {
 
     fetchTrends();
   }, [selectedWeek]);
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && showModal) {
+        closeModal();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [showModal]);
 
   const getPickPercentage = (picks: number, total: number) => {
     if (total === 0) return 0;
@@ -282,10 +373,13 @@ export default function TrendsPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {/* Away Team */}
                           <div
-                            className={`p-4 rounded-lg border-2 transition-all ${
+                            onClick={() =>
+                              handleTeamClick(trend.gameId, trend.awayTeam)
+                            }
+                            className={`p-4 rounded-lg border-2 transition-all cursor-pointer hover:scale-105 hover:shadow-lg ${
                               !favoriteIsHome && favoritePercentage > 50
-                                ? "border-green-500 bg-green-900/20"
-                                : "border-gray-600 bg-gray-700/50"
+                                ? "border-green-500 bg-green-900/20 hover:bg-green-900/30"
+                                : "border-gray-600 bg-gray-700/50 hover:bg-gray-700/70"
                             }`}
                           >
                             <div className="flex items-center justify-between mb-2">
@@ -307,16 +401,19 @@ export default function TrendsPage() {
                               ></div>
                             </div>
                             <p className="text-sm text-gray-400 mt-2">
-                              {trend.awayPicks} picks
+                              {trend.awayPicks} picks • Click to see who picked
                             </p>
                           </div>
 
                           {/* Home Team */}
                           <div
-                            className={`p-4 rounded-lg border-2 transition-all ${
+                            onClick={() =>
+                              handleTeamClick(trend.gameId, trend.homeTeam)
+                            }
+                            className={`p-4 rounded-lg border-2 transition-all cursor-pointer hover:scale-105 hover:shadow-lg ${
                               favoriteIsHome && favoritePercentage > 50
-                                ? "border-green-500 bg-green-900/20"
-                                : "border-gray-600 bg-gray-700/50"
+                                ? "border-green-500 bg-green-900/20 hover:bg-green-900/30"
+                                : "border-gray-600 bg-gray-700/50 hover:bg-gray-700/70"
                             }`}
                           >
                             <div className="flex items-center justify-between mb-2">
@@ -338,7 +435,7 @@ export default function TrendsPage() {
                               ></div>
                             </div>
                             <p className="text-sm text-gray-400 mt-2">
-                              {trend.homePicks} picks
+                              {trend.homePicks} picks • Click to see who picked
                             </p>
                           </div>
                         </div>
@@ -396,6 +493,84 @@ export default function TrendsPage() {
           </div>
         )}
       </div>
+
+      {/* Modal for showing team pickers */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-800 rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-white">
+                {modalData?.teamName
+                  ? `Who picked ${modalData.teamName}`
+                  : "Team Pickers"}
+              </h3>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {isLoadingModal ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-gray-700 rounded-lg p-3 animate-pulse"
+                  >
+                    <div className="h-4 bg-gray-600 rounded w-3/4"></div>
+                  </div>
+                ))}
+              </div>
+            ) : modalData ? (
+              <div>
+                {modalData.pickers.length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-gray-300 mb-3">
+                      {modalData.count} user{modalData.count !== 1 ? "s" : ""}{" "}
+                      picked this team:
+                    </p>
+                    {modalData.pickers.map((picker, index) => (
+                      <div
+                        key={picker.userId}
+                        className="bg-gray-700 rounded-lg p-3 flex items-center"
+                      >
+                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold mr-3">
+                          {picker.username.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-white">{picker.username}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-4xl mb-2">🤷‍♂️</div>
+                    <p className="text-gray-400">No one picked this team yet</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-2">❌</div>
+                <p className="text-gray-400">Failed to load team pickers</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
