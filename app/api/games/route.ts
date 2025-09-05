@@ -86,6 +86,7 @@ export async function GET(request: NextRequest) {
           status: game.status,
           home: TEAM_MAP[game.home_team],
           away: TEAM_MAP[game.away_team],
+          winner_team: game.winner_team,
         })),
       });
     } else {
@@ -157,6 +158,7 @@ export async function GET(request: NextRequest) {
       status: game.status,
       home: TEAM_MAP[game.home_team],
       away: TEAM_MAP[game.away_team],
+      winner_team: null, // New games don't have winners yet
     }));
 
     const { error: upsertError } = await supabase

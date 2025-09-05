@@ -30,4 +30,5 @@ export interface Game {
   status: string;
   home: Team;
   away: Team;
+  winner_team?: string | null;
 }

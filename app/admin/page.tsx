@@ -109,11 +109,16 @@ export default function AdminPage() {
         }),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error("Failed to update game winner");
+        console.error("API Error:", result);
+        throw new Error(result.error || "Failed to update game winner");
       }
 
-      // Refresh games list
+      console.log("Successfully updated game winner:", result);
+
+      // Update local state immediately
       const updatedGames = games.map((game) =>
         game.id === gameId ? { ...game, winner_team: winnerTeam } : game
       );
@@ -124,6 +129,11 @@ export default function AdminPage() {
       setTimeout(() => {
         setUpdateStatus((prev) => ({ ...prev, [gameId]: undefined }));
       }, 2000);
+
+      // Optionally refetch games to ensure data consistency
+      // setTimeout(() => {
+      //   fetchGames();
+      // }, 1000);
     } catch (error) {
       console.error("Error updating game winner:", error);
       setUpdateStatus((prev) => ({ ...prev, [gameId]: "error" }));
@@ -270,37 +280,69 @@ export default function AdminPage() {
                         <span className={gameStatus.color}>
                           {gameStatus.text}
                         </span>
-                        {game.winner_team && (
-                          <span className="bg-green-600 text-white px-2 py-1 rounded-full text-xs">
-                            ✓ Winner Set
-                          </span>
-                        )}
                       </div>
                     </div>
 
                     {/* Winner Selection */}
                     <div className="relative">
-                      <select
-                        value={game.winner_team || ""}
-                        onChange={(e) =>
-                          updateGameWinner(game.id, e.target.value)
-                        }
-                        disabled={updateState === "updating"}
-                        className={`w-full bg-gray-700 border border-gray-600 text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 [&>option]:bg-gray-700 [&>option]:text-white ${
-                          updateState === "updating"
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
-                      >
-                        <option value="">Select Winner</option>
-                        <option value={game.home.id}>
-                          🏠 {game.home.name}
-                        </option>
-                        <option value={game.away.id}>
-                          ✈️ {game.away.name}
-                        </option>
-                        <option value="TIE">🤝 Tie</option>
-                      </select>
+                      {game.winner_team ? (
+                        <div className="space-y-2">
+                          <div className="w-full bg-green-700 border border-green-600 text-white p-3 rounded-lg flex items-center justify-between">
+                            <span className="flex items-center gap-2">
+                              <span className="text-green-300">✓</span>
+                              Winner:{" "}
+                              {game.winner_team === "TIE"
+                                ? "Tie"
+                                : game.winner_team === game.home.id
+                                ? game.home.name
+                                : game.away.name}
+                            </span>
+                          </div>
+                          <select
+                            value={game.winner_team}
+                            onChange={(e) =>
+                              updateGameWinner(game.id, e.target.value)
+                            }
+                            disabled={updateState === "updating"}
+                            className={`w-full bg-gray-700 border border-gray-600 text-white p-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 [&>option]:bg-gray-700 [&>option]:text-white ${
+                              updateState === "updating"
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
+                          >
+                            <option value="">Change Winner</option>
+                            <option value={game.home.id}>
+                              🏠 {game.home.name}
+                            </option>
+                            <option value={game.away.id}>
+                              ✈️ {game.away.name}
+                            </option>
+                            <option value="TIE">🤝 Tie</option>
+                          </select>
+                        </div>
+                      ) : (
+                        <select
+                          value=""
+                          onChange={(e) =>
+                            updateGameWinner(game.id, e.target.value)
+                          }
+                          disabled={updateState === "updating"}
+                          className={`w-full bg-gray-700 border border-gray-600 text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 [&>option]:bg-gray-700 [&>option]:text-white ${
+                            updateState === "updating"
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
+                        >
+                          <option value="">Select Winner</option>
+                          <option value={game.home.id}>
+                            🏠 {game.home.name}
+                          </option>
+                          <option value={game.away.id}>
+                            ✈️ {game.away.name}
+                          </option>
+                          <option value="TIE">🤝 Tie</option>
+                        </select>
+                      )}
 
                       {/* Update Status Indicator */}
                       {updateState && (
