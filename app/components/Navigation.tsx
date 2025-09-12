@@ -10,6 +10,7 @@ import {
   useAuth,
 } from "@clerk/nextjs";
 import Link from "next/link";
+import { getCurrentNFLWeek } from "@/utils/nflSeason";
 
 export default function Navigation() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -49,6 +50,13 @@ export default function Navigation() {
             </span>
           </div>
         </Link>
+
+        {/* Current Week Indicator */}
+        <div className="hidden lg:flex items-center text-sm text-gray-400 ml-2">
+          <span className="bg-gray-800 px-2 py-1 rounded-md">
+            Week {getCurrentNFLWeek()}
+          </span>
+        </div>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex gap-4 items-center">

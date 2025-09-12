@@ -1,14 +1,20 @@
 import Link from "next/link";
+import { getCurrentNFLWeek, formatNFLWeekDisplay } from "@/utils/nflSeason";
 
 export default function Home() {
+  const currentWeek = getCurrentNFLWeek();
+
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
       {/* Hero Section */}
       <div className="text-center max-w-4xl">
         <div className="text-6xl sm:text-7xl lg:text-8xl mb-6">🏈</div>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-6 tracking-tight">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-4 tracking-tight">
           NFL Pick&apos;em Challenge
         </h1>
+        <div className="text-lg sm:text-xl text-green-400 mb-6 font-semibold">
+          🗓️ {formatNFLWeekDisplay(currentWeek)}
+        </div>
         <p className="text-lg sm:text-xl lg:text-2xl text-gray-300 mb-8 sm:mb-10 leading-relaxed">
           Compete with your friends by predicting the winners of each NFL game
           every week. Climb the leaderboard and claim bragging rights!

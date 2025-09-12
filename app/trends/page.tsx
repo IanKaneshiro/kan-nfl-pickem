@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getCurrentNFLWeek } from "@/utils/nflSeason";
 
 interface PickTrend {
   gameId: string;
@@ -42,7 +43,7 @@ interface TeamPickersResponse {
 
 export default function TrendsPage() {
   const [trends, setTrends] = useState<WeeklyTrends | null>(null);
-  const [selectedWeek, setSelectedWeek] = useState(1);
+  const [selectedWeek, setSelectedWeek] = useState(getCurrentNFLWeek());
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState<TeamPickersResponse | null>(null);
@@ -194,11 +195,15 @@ export default function TrendsPage() {
             onChange={(e) => setSelectedWeek(Number(e.target.value))}
             className="bg-gray-800 border border-gray-600 text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 [&>option]:bg-gray-800 [&>option]:text-white min-w-32"
           >
-            {Array.from({ length: 18 }, (_, i) => i + 1).map((week) => (
-              <option key={week} value={week}>
-                Week {week}
-              </option>
-            ))}
+            {Array.from({ length: 18 }, (_, i) => i + 1).map((week) => {
+              const currentWeek = getCurrentNFLWeek();
+              return (
+                <option key={week} value={week}>
+                  Week {week}
+                  {week === currentWeek ? " (Current)" : ""}
+                </option>
+              );
+            })}
           </select>
         </div>
 

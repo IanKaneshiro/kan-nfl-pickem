@@ -3,6 +3,7 @@
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { APIGame } from "@/types/api";
+import { getCurrentNFLWeek } from "@/utils/nflSeason";
 
 function SkeletonLoader() {
   return (
@@ -31,7 +32,7 @@ function SkeletonLoader() {
 
 export default function AdminPage() {
   const [games, setGames] = useState<APIGame[]>([]);
-  const [selectedWeek, setSelectedWeek] = useState(1);
+  const [selectedWeek, setSelectedWeek] = useState(getCurrentNFLWeek());
   const { userId } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoadingAdmin, setIsLoadingAdmin] = useState(true);
@@ -207,11 +208,15 @@ export default function AdminPage() {
             onChange={(e) => setSelectedWeek(Number(e.target.value))}
             className="bg-gray-800 border border-gray-600 text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 [&>option]:bg-gray-800 [&>option]:text-white min-w-32"
           >
-            {Array.from({ length: 18 }, (_, i) => i + 1).map((week) => (
-              <option key={week} value={week}>
-                Week {week}
-              </option>
-            ))}
+            {Array.from({ length: 18 }, (_, i) => i + 1).map((week) => {
+              const currentWeek = getCurrentNFLWeek();
+              return (
+                <option key={week} value={week}>
+                  Week {week}
+                  {week === currentWeek ? " (Current)" : ""}
+                </option>
+              );
+            })}
           </select>
 
           {/* Summary Stats */}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
+import { getCurrentNFLWeek } from "@/utils/nflSeason";
 
 // Define the shape of a Game object for TypeScript
 interface Team {
@@ -21,9 +22,11 @@ interface Game {
 export default function Picks() {
   const { user, isSignedIn } = useUser();
   const [games, setGames] = useState<Game[]>([]);
-  const [week, setWeek] = useState<number>(1); // Default to week 1
+  const [week, setWeek] = useState<number>(getCurrentNFLWeek()); // Default to current NFL week
   const [picks, setPicks] = useState<{ [key: string]: string }>({}); // Store picks as { gameId: pickedTeamId }
   const [isLoading, setIsLoading] = useState(true);
+
+  const currentWeek = getCurrentNFLWeek();
 
   // Fetch games and user's picks when week changes
   useEffect(() => {
@@ -163,7 +166,7 @@ export default function Picks() {
       <header className="w-full max-w-4xl flex items-center justify-center mb-6 sm:mb-8">
         <div className="text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
-            Week {week} Picks
+            Week {week} Picks{week === currentWeek ? " (Current Week)" : ""}
           </h1>
           <p className="text-sm sm:text-base text-gray-300">
             Select the team you think will win each game
