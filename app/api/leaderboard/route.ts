@@ -20,18 +20,38 @@ type Pick = {
 
 export async function GET() {
   try {
-    // Get all picks with user information
-    const { data: allPicks, error } = await supabase
-      .from("picks")
-      .select("user_id, is_correct, users!inner(username)")
-      .returns<Pick[]>();
+    // Fetch all picks in batches to overcome 1000 row limit
+    let allPicks: Pick[] = [];
+    let from = 0;
+    const batchSize = 1000;
+    let hasMore = true;
 
-    if (error) {
-      console.error("Error fetching picks:", error);
-      return NextResponse.json(
-        { error: "Failed to fetch leaderboard" },
-        { status: 500 }
-      );
+    while (hasMore) {
+      const { data: batch, error } = await supabase
+        .from("picks")
+        .select("user_id, is_correct, users(username)")
+        .range(from, from + batchSize - 1)
+        .returns<Pick[]>();
+
+      if (error) {
+        console.error("Error fetching picks:", error);
+        return NextResponse.json(
+          { error: "Failed to fetch leaderboard" },
+          { status: 500 }
+        );
+      }
+
+      if (!batch || batch.length === 0) {
+        hasMore = false;
+      } else {
+        allPicks = allPicks.concat(batch);
+        from += batchSize;
+
+        // If we got less than batchSize, we've reached the end
+        if (batch.length < batchSize) {
+          hasMore = false;
+        }
+      }
     }
 
     if (!allPicks || allPicks.length === 0) {
@@ -41,6 +61,14 @@ export async function GET() {
     // Aggregate stats by user
     const userStats = allPicks.reduce(
       (acc, pick) => {
+        // Skip picks where user doesn't exist (shouldn't happen, but be defensive)
+        if (!pick.users || !pick.users.username) {
+          console.warn(
+            `Pick with user_id ${pick.user_id} has no username, skipping`
+          );
+          return acc;
+        }
+
         const username = pick.users.username;
 
         if (!acc[username]) {
